@@ -36,14 +36,26 @@ canvas {
         }
         .game-container {
             text-align: center;
-            margin: 0 auto; 
+            margin: 20px; 
+                <div class="game-container">
+      <canvas id="gameCanvas"></canvas>
+      <div class="size-controls">
+        <button class="size-btn" onclick="changeSize(20)">小</button>
+        <button class="size-btn" onclick="changeSize(25)">中</button>
+        <button class="size-btn" onclick="changeSize(30)">大</button>
+      </div>
+      <div class="info">
+        分数: <span id="score">0</span>
+        <button id="restartBtn">重新开始</button>
+      </div>
+    </div>
         }
-        canvas {
-            background-color: #000; /* 画布背景黑色 */
-            border: 2px solid #fff; /* 画布白色边框 */
-            display: block;
-            margin: 0 auto;
-        }
+canvas {
+  border: 2px solid #fff; /* 保留边框 */
+  background-color: #000; /* 保留背景色 */
+  max-width: 100%; /* 让画布占满容器宽度 */
+  height: auto; /* 保持比例 */
+}
         .info {
             color: #fff;
             margin-top: 10px;
@@ -55,20 +67,18 @@ canvas {
             cursor: pointer;
         }
     </style>
+
 </head>
 <body>
 
     <div class="game-container">
         <!-- 游戏画布：宽400像素，高400像素 -->
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        
-        <!-- 分数和按钮区域 -->
-        <div class="info">
-            分数: <span id="score">0</span>
-            <button id="restartBtn">重新开始</button>
-        </div>
+        <canvas id="gameCanvas"></canvas>
+    <div class="size-controls">
+      <button class="size-btn" onclick="changeSize(20)">小</button>
+      <button class="size-btn" onclick="changeSize(25)">中</button>
+      <button class="size-btn" onclick="changeSize(30)">大</button>
     </div>
-
     <!-- 后面我们会在这里写脚本，现在先留空 -->
     <script>
     // ===== 1. 游戏初始化 =====
