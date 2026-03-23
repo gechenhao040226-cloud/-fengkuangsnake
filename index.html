@@ -215,6 +215,44 @@
         }, 10);
     }
 
+    // ===== 8. 触屏控制 =====
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  
+  // 判断滑动方向
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // 水平滑动
+    if (deltaX > 0) {
+      // 向右滑动
+      if (direction[0] !== -1) nextDirection = [1, 0];
+    } else {
+      // 向左滑动
+      if (direction[0] !== 1) nextDirection = [-1, 0];
+    }
+  } else {
+    // 垂直滑动
+    if (deltaY > 0) {
+      // 向下滑动
+      if (direction[1] !== -1) nextDirection = [0, 1];
+    } else {
+      // 向上滑动
+      if (direction[1] !== 1) nextDirection = [0, -1];
+    }
+  }
+});
+
     // ===== 8. 键盘控制 (WASD + 方向键) =====
     document.addEventListener('keydown', function(event) {
         if (!gameRunning) return;
