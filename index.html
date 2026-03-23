@@ -6,7 +6,7 @@
     <style>
         /* 禁用页面滚动，但保留触屏事件 */
         body {
-            background-color: #333;
+            background: linear-gradient(135deg, #3a506b, #5d7a9c); /* 稍微浅一点的蓝灰色渐变背景 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -26,7 +26,7 @@
         /* 画布样式 */
         canvas {
             border: 2px solid #fff;
-            background-color: #000;
+            background: linear-gradient(135deg, #1a252f, #2c3e50); /* 深色渐变背景 */
             max-width: 100%;
             height: auto;
         }
@@ -62,9 +62,116 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+
+        /* 设置按钮 */
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .settings-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 设置弹窗 */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            color: #fff;
+        }
+
+        .settings-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .skin-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .skin-option {
+            padding: 10px 20px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .skin-option:hover {
+            transform: scale(1.05);
+        }
+
+        .skin-option.active {
+            border-color: #00ff00;
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+
+        .close-settings {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .close-settings:hover {
+            background-color: #c0392b;
+        }
     </style>
 </head>
 <body>
+    <!-- 设置按钮 -->
+    <button class="settings-btn" onclick="openSettings()">⚙️ 设置</button>
+
+    <!-- 设置弹窗 -->
+    <div id="settingsModal" class="settings-modal">
+        <div class="settings-content">
+            <h2 class="settings-title">游戏设置</h2>
+            <p style="margin-bottom: 10px;">选择蛇的皮肤：</p>
+            <div class="skin-options">
+                <div class="skin-option" onclick="changeSkin('white')" style="color: #fff;">雪白</div>
+                <div class="skin-option" onclick="changeSkin('yellow')" style="color: #ffeb3b;">金黄</div>
+                <div class="skin-option" onclick="changeSkin('pink')" style="color: #ff69b4;">粉红</div>
+                <div class="skin-option" onclick="changeSkin('cyan')" style="color: #00ffff;">青色</div>
+                <div class="skin-option" onclick="changeSkin('orange')" style="color: #ffa500;">橙色</div>
+            </div>
+            <button class="close-settings" onclick="closeSettings()">关闭</button>
+        </div>
+    </div>
+
     <div class="game-container">
         <canvas id="gameCanvas"></canvas>
         <div class="size-controls">
@@ -96,6 +203,18 @@
         let gameSpeed = 150;
         let lastMoveTime = 0;
         let gameRunning = false;
+
+        // 皮肤颜色配置
+        const skins = {
+            default: { head: '#00cc00', body: '#00ff00' },
+            white: { head: '#e0e0e0', body: '#ffffff' },
+            yellow: { head: '#ffc107', body: '#ffeb3b' },
+            pink: { head: '#ff1493', body: '#ff69b4' },
+            cyan: { head: '#00ced1', body: '#00ffff' },
+            orange: { head: '#ff8c00', body: '#ffa500' }
+        };
+
+        let currentSkin = 'default';
 
         // ===== 2. 初始化游戏 =====
         function initGame() {
@@ -173,10 +292,15 @@
 
         // ===== 6. 绘制函数 =====
         function draw() {
-            ctx.fillStyle = '#000';
+            // 绘制渐变背景
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1a252f');
+            gradient.addColorStop(1, '#2c3e50');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = '#1a1a1a';
+            // 绘制网格线
+            ctx.strokeStyle = '#3d566e';
             ctx.lineWidth = 1;
             for (let i = 0; i <= gridSize; i++) {
                 ctx.beginPath();
@@ -189,6 +313,7 @@
                 ctx.stroke();
             }
 
+            // 绘制食物
             ctx.fillStyle = '#ff4444';
             ctx.beginPath();
             const centerX = food.x * tileSize + tileSize / 2;
@@ -196,8 +321,9 @@
             ctx.arc(centerX, centerY, tileSize / 2 - 2, 0, Math.PI * 2);
             ctx.fill();
 
+            // 绘制蛇
             snake.forEach((segment, index) => {
-                ctx.fillStyle = (index === 0) ? '#00cc00' : '#00ff00';
+                ctx.fillStyle = (index === 0) ? skins[currentSkin].head : skins[currentSkin].body;
                 ctx.fillRect(
                     segment[0] * tileSize + 1, 
                     segment[1] * tileSize + 1, 
@@ -206,7 +332,7 @@
                 );
 
                 if (index === 0) {
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = '#000'; // 深色眼睛更清晰
                     let eyeOffsetX = 5;
                     let eyeOffsetY = 5;
                     if (direction[0] === 1) eyeOffsetX = 12;
@@ -237,12 +363,36 @@
             }
         }
 
-        // ===== 9. 禁用页面滚动 =====
+        // ===== 9. 更改皮肤 =====
+        function changeSkin(skinName) {
+            currentSkin = skinName;
+            
+            // 更新选中状态
+            document.querySelectorAll('.skin-option').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 立即重绘
+            if (gameRunning) {
+                draw();
+            }
+        }
+
+        // ===== 10. 打开设置 =====
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        // ===== 11. 关闭设置 =====
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        // ===== 12. 禁用页面滚动 =====
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
         }, { passive: false });
 
-        // ===== 10. 触屏控制 =====
+        // ===== 13. 触屏控制 =====
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -273,7 +423,7 @@
             }
         });
 
-        // ===== 11. 键盘控制 =====
+        // ===== 14. 键盘控制 =====
         document.addEventListener('keydown', function(event) {
             if (!gameRunning) return;
             
@@ -292,6 +442,13 @@
 
         // 重新开始按钮
         document.getElementById('restartBtn').addEventListener('click', initGame);
+
+        // ===== 启动！=====
+        initGame();
+    </script>
+</body>
+</html>
+
 
         // ===== 启动！=====
         initGame();
