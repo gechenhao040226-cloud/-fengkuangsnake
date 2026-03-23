@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <title>我的贪吃蛇游戏</title>
     <style>
+        /* 禁用页面滚动，但保留触屏事件 */
+body {
+  background-color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  /* 禁用页面滚动 */
+  overflow: hidden;
+  /* 防止 iOS 上的橡皮筋效果 */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 可选：让 canvas 占满屏幕宽度，但保持比例 */
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
         /* 这里先写一点简单的样式，让画布居中并有个边框 */
         body {
             background-color: #333; /* 网页背景深灰色 */
